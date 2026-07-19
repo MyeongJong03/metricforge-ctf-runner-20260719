@@ -1,0 +1,35 @@
+name: Call MetricForge restore
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Reusable workflow mode
+        required: true
+        default: claims
+        type: choice
+        options:
+          - claims
+          - exchange
+      entry_role:
+        description: Target entry role ARN for exchange mode
+        required: false
+        default: ""
+        type: string
+      nonce:
+        description: Artifact suffix
+        required: true
+        default: probe
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  restore:
+    uses: yulmwu/metricforge-recovery-workflows/.github/workflows/restore.yml@main
+    with:
+      mode: ${{ inputs.mode }}
+      entry_role: ${{ inputs.entry_role }}
+      nonce: ${{ inputs.nonce }}
