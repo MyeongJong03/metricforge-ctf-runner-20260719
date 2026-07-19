@@ -163,10 +163,43 @@ def candidates():
         "builder-artifacts-reader",
         "builder-artifacts-reader-role",
     }
-    if os.environ.get("MF_ONLY_ARTIFACTS"):
+    author_phrases = {
+        "github-actions",
+        "github-actions-role",
+        "github-actions-terraform",
+        "github-actions-recovery",
+        "github-actions-recovery-role",
+        "github-actions-recovery-entry",
+        "github-actions-recovery-entry-role",
+        "github-actions-restore",
+        "github-actions-restore-role",
+        "github-actions-restore-entry",
+        "github-actions-restore-entry-role",
+        "github-actions-metricforge",
+        "github-actions-metricforge-role",
+        "github-actions-metricforge-entry",
+        "github-actions-metricforge-entry-role",
+        "github-actions-metricforge-recovery",
+        "github-actions-metricforge-recovery-role",
+        "github-actions-metricforge-recovery-entry",
+        "github-actions-metricforge-recovery-entry-role",
+        "github-actions-recovery-artifacts",
+        "github-actions-recovery-artifacts-role",
+        "github-actions-recovery-artifacts-reader",
+        "github-actions-recovery-artifacts-reader-role",
+        "github-actions-artifacts",
+        "github-actions-artifacts-reader",
+        "github-oidc-recovery",
+        "github-oidc-recovery-role",
+        "github-oidc-recovery-entry",
+        "github-oidc-recovery-entry-role",
+    }
+    if os.environ.get("MF_ONLY_AUTHOR"):
+        phrases = author_phrases
+    elif os.environ.get("MF_ONLY_ARTIFACTS"):
         phrases = artifact_phrases
     else:
-        phrases |= artifact_phrases
+        phrases |= artifact_phrases | author_phrases
     names = set()
     for phrase in phrases:
         kebab_forms = (phrase, f"metricforge-{phrase}", f"mf-{phrase}")
@@ -198,7 +231,7 @@ def candidates():
             names.add("30b28c53" + sep + joined)
             names.add("/".join(("metricforge", joined + sep + "30b28c53")))
 
-    if os.environ.get("MF_ONLY_ARTIFACTS"):
+    if os.environ.get("MF_ONLY_ARTIFACTS") or os.environ.get("MF_ONLY_AUTHOR"):
         bases = list(names)
         for base in bases:
             parts = base.split("/")
