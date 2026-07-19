@@ -105,6 +105,68 @@ def candidates():
         "workflow-entry",
         "workflow-entry-role",
     }
+    artifact_phrases = {
+        "artifact",
+        "artifact-role",
+        "artifact-entry",
+        "artifact-entry-role",
+        "artifact-reader",
+        "artifact-reader-role",
+        "artifact-read-role",
+        "artifact-access",
+        "artifact-access-role",
+        "artifacts",
+        "artifacts-role",
+        "artifacts-entry",
+        "artifacts-entry-role",
+        "artifacts-reader",
+        "artifacts-reader-role",
+        "artifacts-read-role",
+        "artifacts-access",
+        "artifacts-access-role",
+        "recovery-artifact",
+        "recovery-artifact-role",
+        "recovery-artifact-entry",
+        "recovery-artifact-entry-role",
+        "recovery-artifact-reader",
+        "recovery-artifact-reader-role",
+        "recovery-artifact-read-role",
+        "recovery-artifact-access",
+        "recovery-artifact-access-role",
+        "recovery-artifacts",
+        "recovery-artifacts-role",
+        "recovery-artifacts-entry",
+        "recovery-artifacts-entry-role",
+        "recovery-artifacts-reader",
+        "recovery-artifacts-reader-role",
+        "recovery-artifacts-read-role",
+        "recovery-artifacts-access",
+        "recovery-artifacts-access-role",
+        "recovery-artifacts-oidc",
+        "recovery-artifacts-oidc-role",
+        "recovery-artifacts-oidc-entry",
+        "recovery-artifacts-oidc-entry-role",
+        "recovery-channel",
+        "recovery-channel-role",
+        "recovery-channel-entry",
+        "recovery-channel-entry-role",
+        "recovery-channel-reader",
+        "recovery-channel-reader-role",
+        "recovery-channel-access",
+        "recovery-channel-access-role",
+        "build-artifacts",
+        "build-artifacts-role",
+        "build-artifacts-reader",
+        "build-artifacts-reader-role",
+        "builder-artifacts",
+        "builder-artifacts-role",
+        "builder-artifacts-reader",
+        "builder-artifacts-reader-role",
+    }
+    if os.environ.get("MF_ONLY_ARTIFACTS"):
+        phrases = artifact_phrases
+    else:
+        phrases |= artifact_phrases
     names = set()
     for phrase in phrases:
         kebab_forms = (phrase, f"metricforge-{phrase}", f"mf-{phrase}")
@@ -126,12 +188,36 @@ def candidates():
         ("MetricForge", "GitHub", "OIDC", "Entry", "Role"),
         ("MetricForge", "Recovery", "GitHub", "OIDC", "Role"),
         ("MetricForge", "Recovery", "GitHub", "OIDC", "Entry", "Role"),
+        ("MetricForge", "Recovery", "Artifacts", "Reader", "Role"),
+        ("MetricForge", "Recovery", "Artifacts", "Entry", "Role"),
+        ("MetricForge", "Recovery", "Artifacts", "OIDC", "Entry", "Role"),
     ):
         joined = "".join(words)
         for sep in ("", "-", "_"):
             names.add(joined + sep + "30b28c53")
             names.add("30b28c53" + sep + joined)
             names.add("/".join(("metricforge", joined + sep + "30b28c53")))
+
+    if os.environ.get("MF_ONLY_ARTIFACTS"):
+        bases = list(names)
+        for base in bases:
+            parts = base.split("/")
+            leaf = parts[-1]
+            prefix = "/".join(parts[:-1])
+            for marker in ("30b28c53", "125746528491"):
+                tokens = leaf.split("-")
+                for index in range(1, len(tokens)):
+                    inserted = "-".join(tokens[:index] + [marker] + tokens[index:])
+                    names.add(f"{prefix}/{inserted}" if prefix else inserted)
+        names.update({
+            "metricforge-recovery-artifacts-125746528491",
+            "metricforge-recovery-artifacts-125746528491-reader",
+            "metricforge-recovery-artifacts-125746528491-entry",
+            "metricforge-recovery-artifacts-30b28c53-reader",
+            "metricforge-recovery-artifacts-30b28c53-entry",
+            "metricforge-recovery-30b28c53-artifacts-reader",
+            "metricforge-recovery-30b28c53-artifacts-entry",
+        })
 
     # Deterministic ordering with previously tested exact names removed only to
     # reduce noise; keeping them would be harmless.
