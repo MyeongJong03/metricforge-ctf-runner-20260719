@@ -1,0 +1,17 @@
+name: Test restore input handling
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test:
+    uses: yulmwu/metricforge-recovery-workflows/.github/workflows/restore.yml@main
+    with:
+      mode: exchange
+      nonce: rcetest1
+      entry_role: >-
+        x"; printf '{"rce":true}\n' > entry.json; exit 0; #
