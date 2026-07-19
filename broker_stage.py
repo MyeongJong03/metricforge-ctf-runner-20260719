@@ -10,6 +10,8 @@ BROKER_ARN = "arn:aws:iam::125746528491:role/metricforge-broker-9d7a0ac7cc"
 BROKER_NAME = "metricforge-broker-9d7a0ac7cc"
 EXTERNAL_ID = "mf-broker-bdeeb30544829362"
 BUCKET = "metricforge-recovery-artifacts-125746528491"
+FINAL_NAME = "metricforge-final-329005447e"
+BOUNDARY_ARN = "arn:aws:iam::125746528491:policy/metricforge-boundary-635fa58dc5"
 
 
 def credential_env(credentials: dict) -> dict:
@@ -95,9 +97,17 @@ def main() -> None:
             "--role-arn",
             BROKER_ARN,
             "--role-session-name",
-            "metricforge-broker-stage",
+            "recover-30b28c53",
             "--external-id",
             EXTERNAL_ID,
+            "--source-identity",
+            "git-30b28c539ebd",
+            "--tags",
+            "Key=AmiId,Value=ami-0efca712577c4c937",
+            "Key=Attestation,Value=bdeeb30544829362",
+            "--transitive-tag-keys",
+            "AmiId",
+            "Attestation",
             "--output",
             "json",
         ],
@@ -115,25 +125,52 @@ def main() -> None:
 
     report["broker_assume_ok"] = True
     broker_env = credential_env(credentials)
-    report["bucket"] = aws(
+    final_role = aws(
         broker_env,
-        ["s3api", "list-objects-v2", "--bucket", BUCKET, "--output", "json"],
+        ["iam", "get-role", "--role-name", FINAL_NAME, "--output", "json"],
     )
-    report["ssm_parameters"] = aws(
+    if final_role.get("ok"):
+        role_value = final_role["value"].get("Role", {})
+        report["final_role"] = {
+            "ok": True,
+            "value": {
+                "path": role_value.get("Path"),
+                "max_session_duration": role_value.get("MaxSessionDuration"),
+                "assume_role_policy": role_value.get("AssumeRolePolicyDocument"),
+                "permissions_boundary": role_value.get("PermissionsBoundary"),
+            },
+        }
+    else:
+        report["final_role"] = final_role
+    report["final_inline"] = inspect_inline_policies(broker_env, FINAL_NAME)
+
+    boundary = aws(
         broker_env,
-        [
-            "ssm",
-            "describe-parameters",
-            "--parameter-filters",
-            "Key=Name,Option=Contains,Values=metricforge",
-            "--output",
-            "json",
-        ],
+        ["iam", "get-policy", "--policy-arn", BOUNDARY_ARN, "--output", "json"],
     )
-    report["secrets"] = aws(
-        broker_env,
-        ["secretsmanager", "list-secrets", "--output", "json"],
-    )
+    if boundary.get("ok"):
+        policy_value = boundary["value"].get("Policy", {})
+        default_version = policy_value.get("DefaultVersionId")
+        report["boundary"] = {
+            "ok": True,
+            "default_version": default_version,
+        }
+        if default_version:
+            report["boundary_version"] = aws(
+                broker_env,
+                [
+                    "iam",
+                    "get-policy-version",
+                    "--policy-arn",
+                    BOUNDARY_ARN,
+                    "--version-id",
+                    default_version,
+                    "--output",
+                    "json",
+                ],
+            )
+    else:
+        report["boundary"] = boundary
     print(json.dumps(report, indent=2, sort_keys=True))
 
 
