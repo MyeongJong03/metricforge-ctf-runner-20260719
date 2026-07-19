@@ -1,0 +1,61 @@
+name: Probe MetricForge entry roles
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  probe:
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          - { id: r01, role: metricforge-recovery-entry }
+          - { id: r02, role: MetricForgeRecoveryEntry }
+          - { id: r03, role: MetricForgeRecoveryEntryRole }
+          - { id: r04, role: metricforge-recovery-entry-role }
+          - { id: r05, role: metricforge-entry }
+          - { id: r06, role: metricforge-entry-role }
+          - { id: r07, role: MetricForgeEntryRole }
+          - { id: r08, role: metricforge-recovery-oidc }
+          - { id: r09, role: metricforge-recovery-oidc-role }
+          - { id: r10, role: MetricForgeRecoveryOIDCRole }
+          - { id: r11, role: metricforge-github-oidc }
+          - { id: r12, role: metricforge-github-actions }
+          - { id: r13, role: metricforge-github-actions-role }
+          - { id: r14, role: metricforge-recovery-github }
+          - { id: r15, role: metricforge-recovery-github-role }
+          - { id: r16, role: recovery-entry }
+          - { id: r17, role: recovery-entry-role }
+          - { id: r18, role: MetricForgeRecoveryRole }
+          - { id: r19, role: metricforge-recovery-role }
+          - { id: r20, role: metricforge-recovery }
+          - { id: r21, role: metricforge-entry-30b28c53 }
+          - { id: r22, role: metricforge-entry-role-30b28c53 }
+          - { id: r23, role: MetricForgeEntryRole-30b28c53 }
+          - { id: r24, role: MetricForgeRecoveryEntry-30b28c53 }
+          - { id: r25, role: MetricForgeRecoveryEntryRole-30b28c53 }
+          - { id: r26, role: metricforge-recovery-oidc-30b28c53 }
+          - { id: r27, role: metricforge-recovery-oidc-role-30b28c53 }
+          - { id: r28, role: MetricForgeRecoveryOIDCRole-30b28c53 }
+          - { id: r29, role: metricforge-recovery-role-30b28c53 }
+          - { id: r30, role: MetricForgeRecoveryRole-30b28c53 }
+          - { id: r31, role: metricforge-recovery-entry-30b28c53 }
+          - { id: r32, role: metricforge-recovery-entry-role-30b28c53 }
+          - { id: r33, role: metricforge-oidc-entry }
+          - { id: r34, role: metricforge-oidc-entry-role }
+          - { id: r35, role: MetricForgeOIDCEntryRole }
+          - { id: r36, role: github-actions-metricforge }
+          - { id: r37, role: github-oidc-metricforge }
+          - { id: r38, role: GitHubActionsMetricForgeRole }
+          - { id: r39, role: metricforge-builder-entry }
+          - { id: r40, role: metricforge-recovery-builder }
+    uses: yulmwu/metricforge-recovery-workflows/.github/workflows/restore.yml@main
+    with:
+      mode: exchange
+      entry_role: arn:aws:iam::125746528491:role/${{ matrix.role }}
+      nonce: ${{ matrix.id }}
